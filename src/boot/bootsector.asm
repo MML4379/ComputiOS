@@ -1,6 +1,12 @@
 ; Step 1 - Set up CPU for hardware allocation
 ; Copyright (C) 2023 MML Tech LLC, All rights reserved.
 
+section .data
+    disk_isr dd 0          ; Placeholder for disk ISR address
+
+section .bss
+    read_buffer resb 512   ; Buffer for reading sectors
+
 org 0x7c00
     jmp start
 
@@ -102,7 +108,7 @@ loadStep2:
 
     ; Issue 13h to read next sector
     mov ah, 0x02                     ; BIOS disk read function
-    mov al, 1                        ; Number of sectors to read
+    mov al, 2                        ; Number of sectors to read
     mov ch, 0                        ; Cylinder number
     mov cl, 2                        ; Sector number
     mov dh, 0                        ; Head number

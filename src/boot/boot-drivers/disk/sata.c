@@ -1,5 +1,6 @@
 #include "sata.h"
 #include "../../krnl-loading/loadKrnl.h"
+#include "../io/pit.h" 
 
 // SATA registers (example addresses, adjust based on your hardware)
 #define SATA_DATA_REG 0x1F0
@@ -41,6 +42,9 @@
 #define AHCI_CMD_DMA 0x00000008
 #define AHCI_CMD_READ 0x00000000
 
+// Sector size
+#define SECTOR_SIZE 0x200
+
 // Function to wait until the SATA controller is ready
 static int waitForSataReady() {
     while ((inb(SATA_STATUS_REG) & SATA_STATUS_BUSY_BIT) || (inb(SATA_STATUS_REG) & SATA_STATUS_DRQ_BIT) == 0);
@@ -52,6 +56,9 @@ void initializeDiskDriver() {
     // Disable interrupts
     __asm__ __volatile__("cli");
 
+    // Initialize PIT (newly added)
+    pit_init();
+
     // Reset the SATA controller (software reset)
     outb(SATA_COMMAND_REG, 0x04);
     // Wait a short time for the reset to complete
@@ -59,7 +66,7 @@ void initializeDiskDriver() {
 
     // Check the status of the SATA controller
     if (inb(SATA_STATUS_REG) != 0xFF) {
-        errorHalt()
+        errorHalt(ERROR_DISK_NOT_READY, "Error: SATA controller is not ready!");
         return;
     }
 
@@ -71,6 +78,7 @@ void initializeDiskDriver() {
 int readFromDisk(uint64_t sector, size_t count, void* buffer) {
     // Wait until the SATA controller is ready
     if (!waitForSataReady()) {
+        errorHalt(ERROR_DISK_NOT_READY, "Error: SATA controller is not ready!");
         return -1;  // Error: SATA controller not ready
     }
 
@@ -83,8 +91,9 @@ int readFromDisk(uint64_t sector, size_t count, void* buffer) {
     outb(SATA_COMMAND_REG, SATA_CMD_READ_SECTORS);  // Issue read command
 
     // Read data from the data port
-    for (size_t i = 0; i < count; i++) {
+    for (size_t i = 0; i < count; ++i) {
         if (!waitForSataReady()) {
+            errorHalt(ERROR_DISK_NOT_READY, "Failed to read data: SATA controller not ready");
             return -2;  // Error: SATA controller not ready for data
         }
 
@@ -99,6 +108,7 @@ int readFromDisk(uint64_t sector, size_t count, void* buffer) {
 int writeToDisk(uint64_t sector, size_t count, const void* buffer) {
     // Wait until the SATA controller is ready
     if (!waitForSataReady()) {
+        errorHalt(ERROR_DISK_NOT_READY, "Error: SATA controller is not ready!");
         return -1;  // Error: SATA controller not ready
     }
 
@@ -111,8 +121,9 @@ int writeToDisk(uint64_t sector, size_t count, const void* buffer) {
     outb(SATA_COMMAND_REG, SATA_CMD_WRITE_SECTORS);  // Issue write command
 
     // Write data to the data port
-    for (size_t i = 0; i < count; i++) {
+    for (size_t i = 0; i < count; ++i) {
         if (!waitForSataReady()) {
+            errorHalt(ERROR_DISK_NOT_READY, "Failed to write data: SATA controller not ready");
             return -2;  // Error: SATA controller not ready for data
         }
 

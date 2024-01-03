@@ -3,6 +3,7 @@
 
 // Placeholder for the file system data structures
 static DirectoryEntry rootDirectory;
+#define SECTOR_SIZE 0x200 // Sector size (512 bytes)
 
 // Function to initialize CPFS
 void initializeCPFS() {
@@ -48,7 +49,14 @@ int createFile(const char* filename) {
     // Initialize the file entry
     FileEntry* newFile = &rootDirectory.entries[emptySlot];
     strncpy(newFile->filename, filename, FILENAME_MAX_LEN - 1);
-    newFile->startingCluster = /* set the starting cluster */;
+
+    // Allocate a cluster for the file
+    newFile->startingCluster = allocateCluster();
+    if (newFile->startingCluster == 0) {
+        // Handle the case where cluster allocation fails
+        return -3;  // Failed to allocate cluster
+    }
+
     newFile->fileSize = 0;  // Set the initial size to 0
 
     return 0;  // File created successfully
@@ -80,4 +88,29 @@ int writeFile(const char* filename, const void* data, size_t dataSize) {
     int writeResult = writeToDisk(fileEntry->startingSector, dataSize / SECTOR_SIZE, data);
 
     return writeResult;  // Return the result of the write operation
+}
+
+// Placeholder for the currently open file
+static FileEntry* openFileEntry = NULL;
+
+// Function to open a file in the file system
+int openFile(const char* filename) {
+    // Find the file entry
+    openFileEntry = findFileEntry(filename);
+    if (openFileEntry == NULL) {
+        return -1;  // File not found
+    }
+
+    return 0;  // File opened successfully
+}
+
+// Function to get the size of a file in the file system
+int getFileSize(const char* filename) {
+    // Find the file entry
+    FileEntry* fileEntry = findFileEntry(filename);
+    if (fileEntry == NULL) {
+        return -1;  // File not found
+    }
+
+    return fileEntry->fileSize;
 }

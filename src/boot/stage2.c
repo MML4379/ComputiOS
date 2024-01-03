@@ -7,5 +7,6 @@
 #include "loadKrnl.h"
 
 void main() {
+    loadKrnl();
     return 0;
 }

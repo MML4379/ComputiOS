@@ -8,9 +8,10 @@
 
 // Structure representing a file entry
 typedef struct {
-    char filename[FILENAME_MAX_LEN];  // File name
-    uint32_t startingCluster;         // Starting cluster of the file data
-    uint32_t fileSize;                // Size of the file in bytes
+    char filename[FILENAME_MAX_LEN];
+    uint64_t startingCluster; 
+    uint64_t startingSector; 
+    size_t fileSize;
 } FileEntry;
 
 // Structure representing a directory entry
@@ -26,5 +27,8 @@ int createFile(const char* filename);
 
 // Function to read a file from the file system
 int readFile(const char* filename, void* buffer, size_t bufferSize);
+
+int openFile(const char* filename);
+int getFileSize(const char* filename);
 
 #endif // CPFS_H

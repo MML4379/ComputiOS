@@ -1,2 +1,2 @@
 # ComputiOS
-Out with the old and stinky UX (Windows), and in with the new and nice UX (ComputiOS) - Fully releasing in 2024
+This new, fresh OS is the peak of performance and looks, all coming out this year!

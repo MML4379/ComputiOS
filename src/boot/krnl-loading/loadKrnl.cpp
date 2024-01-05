@@ -35,7 +35,7 @@ void loadKrnl() {
 
     // Enable keyboard (implementation pending)
 
-    // Load the kernel into RAM (we called checkForKernel(), which opened the kernel already)
+    // Load the kernel into RAM
     int kernelSize = getFileSize("cposkrnl.mapp");
     void* kernelBuffer = malloc(kernelSize);
 
@@ -43,16 +43,16 @@ void loadKrnl() {
     int readResult = readFile("cposkrnl.mapp", kernelBuffer, kernelSize);
     if (readResult != 0) {
         // Show error and halt if there's an issue reading the kernel
-        errorHalt(ERROR_KERNEL_INITIALIZATION, "Error: Unable to read kernel file");
+        errorHalt(ERROR_KERNEL_INITIALIZATION, "Error: Unable to read kernel (1:/cposkrnl.mapp)");
     }
 
     // Define the address where the kernel will be copied
-    uintptr_t kernelAddress = 0x100000; // Adjust this based on your memory map
+    uintptr_t kernelAddress = 0x100000;
 
     // Copy the kernel to the specified address
     memcpy((void*)kernelAddress, kernelBuffer, kernelSize);
 
-    // Now, you can execute your kernel from the copied address
+    // execute your kernel from the copied address
     ((void (*)(void))kernelAddress)();
 
     // Free the allocated buffer

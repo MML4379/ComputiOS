@@ -8,6 +8,21 @@ jmp start             ; Jump to the start label
 ; Define constants
 SECTOR_SIZE equ 512   ; Sector size in bytes
 
+goto_pm:
+    ; Load the second stage of the bootloader
+    mov ax, 0x9000       ; Address where the second stage will be loaded
+    mov es, ax
+    mov bx, 0x0200       ; Offset where the second stage will be loaded
+    mov ah, 0x02         ; Function number: Read sectors
+    mov al, 1            ; Number of sectors to read
+    mov ch, 0            ; Cylinder number
+    mov dh, 0            ; Head number
+    mov dl, 0x80         ; Drive number (e.g., 0x80 for the first hard disk)
+    int 0x13             ; BIOS interrupt for disk I/O
+
+    ; Check for error in reading the second stage
+    jc boot_error
+
 start:
     ; Set up the stack
     mov ax, 0x7C00
@@ -20,20 +35,6 @@ start:
     cpuid
     test edx, 1 << 21   ; Check if the CPUID instruction is supported
     jz  no_cpuid_error
-
-    ; Load the second stage of the bootloader
-    mov ax, 0x9000       ; Address where the second stage will be loaded
-    mov es, ax
-    mov bx, 0x0200       ; Offset where the second stage will be loaded
-    mov ah, 0x02         ; Function number: Read sectors
-    mov al, 1            ; Number of sectors to read
-    mov ch, 0            ; Cylinder number
-    mov dh, 0            ; Head number
-    mov dl, 0            ; Drive number (e.g., 0x80 for the first hard disk)
-    int 0x13             ; BIOS interrupt for disk I/O
-
-    ; Check for error in reading the second stage
-    jc boot_error
 
     ; Switch to protected mode
     call switch_to_protected_mode
@@ -78,7 +79,7 @@ switch_to_protected_mode:
     mov eax, cr0
     or eax, 1 << 0       ; Set the PE (Protected Mode Enable) bit in CR0
     mov cr0, eax
-    jmp CODE_SEG:init_pm ; Jump to the next instruction in protected mode
+    jmp CODE_SEG:goto_pm ; Jump to the next instruction in protected mode
 
 ; GDT (Global Descriptor Table) definition
 gdt_start:

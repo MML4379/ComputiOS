@@ -1,6 +1,9 @@
 #ifndef KERNEL_H
 #define KERNEL_H
 
-void print_string(const char *str, int *success);
+void init();
+void startProc(const char* location, int& pid);
+
+namespace cposkrnl {};
 
 #endif

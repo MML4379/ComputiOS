@@ -14,7 +14,15 @@ Getting a basic project up and running
 - [ ] Basic user interface library
 - [ ] Interactive graphical user interface shell
 
-## Milestone 1 - Networking
+## Milestone 1 - Storage
+
+Adding storage
+
+- [ ] Simple virtio block driver
+- [ ] Simple FAT32 filesystem support (read-only)
+- [ ] New Journaling File System (Read/Write/Modify)
+
+## Milestone 2 - Networking
 
 Adding network support to ComputiOS
 
@@ -24,14 +32,6 @@ Adding network support to ComputiOS
 - [ ] Simple HTTP server & client
 - [ ] Simple DNS client
 - [ ] Ethernet (RJ-45) networking support
-
-## Milestone 2 - Storage
-
-Adding storage
-
-- [ ] Simple virtio block driver
-- [ ] Simple FAT32 filesystem support (read-only)
-- [ ] New Journaling File System (Read/Write/Modify)
 
 ## Milestone 3 - User Experience
 

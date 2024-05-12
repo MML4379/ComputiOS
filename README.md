@@ -7,7 +7,7 @@ This is everything I plan for ComputiOS, this may change over time.
 Getting a basic project up and running
 
 - [ ] Basic bootloader
-- [ ] Basic monolithic kernel
+- [ ] Basic hybrid kernel
 - [ ] Basic system library with asynchonous I/O support
 - [ ] Basic IPC library
 - [ ] Basic graphics library with subpixel font rendering
@@ -19,8 +19,8 @@ Getting a basic project up and running
 Adding storage
 
 - [ ] Simple virtio block driver
-- [ ] Simple FAT32 filesystem support (read-only)
-- [ ] New Journaling File System (Read/Write/Modify)
+- [ ] Simple FAT32 filesystem support (read-only) - ComputiOS FAT32
+- [ ] New Journaling File System (Read/Write/Modify) - ComputiOS File System (CPFS)
 
 ## Milestone 2 - Networking
 

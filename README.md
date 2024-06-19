@@ -20,6 +20,7 @@ Getting a basic project up and running
 Adding storage
 
 - [ ] Simple virtio block driver
+- [ ] Simple AHCI (SATA) driver
 - [ ] Simple FAT32 filesystem support (read-only) - ComputiOS FAT32
 - [ ] New Journaling File System (Read/Write/Modify) - ComputiOS File System (CPFS)
 
@@ -59,3 +60,4 @@ Planned for when everything above is tackled.
 - [ ] WiFi and Bluetooth support
 - [ ] Making an alternative to Wine 
 - [ ] Adding update system using new network support
+- [ ] NVMe support

@@ -6,8 +6,8 @@ This is everything I plan for ComputiOS, this may change over time.
 
 Getting a basic project up and running
 
-- [ ] Basic bootloader
-- [ ] Basic libc implementation
+- [x] Basic bootloader
+- [x] Basic libc implementation
 - [ ] Basic hybrid kernel
 - [ ] Basic system library with asynchonous I/O support
 - [ ] Basic IPC library

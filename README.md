@@ -2,7 +2,7 @@
 Computer Operating System, something I work on in the free time I have. 
 
 ## My goals for this OS
-I want this operating system to be able to play Crab Rave on YouTube. Quite the ambitious goal but I will get there some day. It will be a 64 bit OS, targeted towards real, modern hardware.
+I want this operating system to be able to play Crab Rave on YouTube, whilst rendering a nice looking UI. Quite the ambitious goal but I will get there some day. It will be a 64 bit OS, targeted towards real, modern hardware.
 
 ## Checklist
 BOOTLOADER:

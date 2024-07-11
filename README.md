@@ -7,17 +7,14 @@ I want this operating system to be able to play Crab Rave on YouTube, whilst ren
 ## Checklist
 BOOTLOADER:
 - [x] Hello world in assembly
+- [x] Switching to protected mode and printing text
 - [ ] Disk loading functionality
-- [ ] Switching to protected mode and printing Hello World
 - [ ] Switching to long mode and printing the available amount of memory
 - [ ] Mapping memory
 - [ ] Looking for VESA modes
 - [ ] Passing control to a kernel
 
 KERNEL:
-I will continue this checklist later.
-
-API:
 I will continue this checklist later.
 
 DRIVERS:

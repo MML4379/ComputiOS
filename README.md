@@ -8,7 +8,7 @@ I want this operating system to be able to play Crab Rave on YouTube, whilst ren
 BOOTLOADER:
 - [x] Hello world in assembly
 - [x] Switching to protected mode and printing text
-- [ ] Disk loading functionality
+- [x] Disk loading functionality
 - [ ] Switching to long mode and printing the available amount of memory
 - [ ] Mapping memory
 - [ ] Looking for VESA modes

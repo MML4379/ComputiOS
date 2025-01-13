@@ -1,28 +1,25 @@
-# tools
-AS=nasm
-CC=x86_64-elf-gcc
-LD=x86_64-elf-ld
+# Tools
+ASM = nasm
 
-# locations
-BOOTSRC=src/boot
-KRNLSRC=src/kernel
-MNT=/mnt/e
+# Directories
+SRC_DIR = src
+BUILD_DIR = build
+STAGE1_DIR = $(SRC_DIR)/boot/stage1
 
-# files
-BOOTBIN=build/boot.bin
-BOOTASM=src/boot/boot.asm
-BOOTIMG=$(MNT)/boot.img
+# Output files
+BOOT_SECT = $(BUILD_DIR)/bootsect.bin
 
-# flags
-ASFLAGS=-f bin -o
+# Flags
+ASMFLAGS = -f bin
 
-all: $(BOOTIMG)
+# Build rules
+all: $(BOOT_SECT)
 
-$(BOOTBIN): $(BOOTASM)
-	$(AS) $^ $(ASFLAGS) $@
-
-$(BOOTIMG): $(BOOTBIN)
-	dd if=$< of=$@ bs=512 count=1
+$(BOOT_SECT): $(STAGE1_DIR)/bootsect.asm
+	@mkdir -p $(BUILD_DIR)
+	$(ASM) $(ASMFLAGS) -o $@ $<
 
 clean:
-	rm -f $(BOOT_BIN) $(BOOT_IMG)
+	rm -rf $(BUILD_DIR)
+
+.PHONY: all clean

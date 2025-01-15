@@ -18,9 +18,9 @@ BOOTLOADER:
 DRIVERS:
 - Disk Driver
     - [x] FAT32 Read/Write
-    - [] FAT32 Formatting
-    - [] Custom Journaling File System
-    - [] Other basic FS implementations
+    - [ ] FAT32 Formatting
+    - [ ] Custom Journaling File System
+    - [ ] Other basic FS implementations
 - Video Driver
-    - [] Implement VGA register utilization
-    - [] Implement basic GPU interaction, to make everything a bit more **colorful**
+    - [ ] Implement VGA register utilization
+    - [ ] Implement basic GPU interaction, to make everything a bit more **colorful**

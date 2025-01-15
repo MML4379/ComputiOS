@@ -6,16 +6,21 @@ I want this operating system to be able to play Crab Rave on YouTube, whilst ren
 
 ## Checklist
 BOOTLOADER:
-- [x] Hello world in assembly
-- [x] Switching to protected mode and printing text
-- [ ] Disk loading functionality
-- [ ] Switching to long mode and printing the available amount of memory
-- [ ] Mapping memory
-- [ ] Looking for VESA modes
-- [ ] Passing control to a kernel
-
-KERNEL:
-I will continue this checklist later.
+- [x] Basic Functionality
+- [x] Protected Mode
+- [x] A20 Line
+- [x] FAT32 Read functionality
+- [x] PAE
+- [x] Paging
+- [x] Long Mode
+- [x] Passing control to the kernel
 
 DRIVERS:
-I will continue this checklist later.
+- Disk Driver
+    - [x] FAT32 Read/Write
+    - [] FAT32 Formatting
+    - [] Custom Journaling File System
+    - [] Other basic FS implementations
+- Video Driver
+    - [] Implement VGA register utilization
+    - [] Implement basic GPU interaction, to make everything a bit more **colorful**

@@ -10,8 +10,8 @@ An efficient journaling file system with superblock, based on Ext2.
 | 12            | 15          | 4    | Number of unallocated blocks
 | 16            | 19          | 4    | Number of unallocated inodes
 | 20            | 23          | 4    | Block number of the Superblock
-| 24            | 27          | 4    | `log<sub>2</sub>(block_size)-10`
-| 28            | 31          | 4    | `log<sub>2</sub>(fragment_size)-10`
+| 24            | 27          | 4    | log<sub>2</sub>(block_size)-10
+| 28            | 31          | 4    | log<sub>2</sub>(fragment_size)-10
 | 32            | 35          | 4    | Number of blocks in each group
 | 36            | 39          | 4    | Number of fragments in each group
 | 40            | 43          | 4    | Number of inodes in each group
@@ -35,8 +35,8 @@ An efficient journaling file system with superblock, based on Ext2.
 | 94            | 109         | 16   | File System ID
 | 110           | 127         | 18   | Reserved
 | 128           | 255         | 128  | Volume Name (128 characters)
-| 256           | 257         | 2    | System Disk? (Exclusive to ComputiOS)
-| 258           | 259         | 2    | Paging Disk? (Exclusive to ComputiOS)
+| 256           | 256         | 1    | System Disk? (Exclusive to ComputiOS)
+| 257           | 257         | 1    | Paging Disk? (Exclusive to ComputiOS)
 
 ## File System States
 | Value | Details

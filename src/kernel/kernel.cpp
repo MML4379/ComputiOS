@@ -1,39 +1,66 @@
-#include "types.hpp"
+#include "libk/types.hpp"
 #include "idt.hpp"
 #include "pic.hpp"
 #include "serial.hpp"
 #include "pci.hpp"
+#include "libk/kprint.hpp"
+#include "memory_manager.hpp"
+#include "vmm.hpp"
+#include "heap.hpp"
+#include "scheduler.hpp"
+
+void worker_low(void* arg) {
+    (void)arg;
+    for (;;) {
+        kprintf("   [LOW %u] before yield\n",
+                scheduler::current() ? scheduler::current()->id : 0xFFFFFFFF);
+        scheduler::yield();
+        kprintf("   [LOW %u] after yield\n",
+                scheduler::current() ? scheduler::current()->id : 0xFFFFFFFF);
+
+        for (volatile int i = 0; i < 1000000; ++i) { }
+    }
+}
+
+void worker_high(void* arg) {
+    (void)arg;
+    for (;;) {
+        kprintf("[HIGH %u] before yield\n",
+                scheduler::current() ? scheduler::current()->id : 0xFFFFFFFF);
+        scheduler::yield();
+        kprintf("[HIGH %u] after yield\n",
+                scheduler::current() ? scheduler::current()->id : 0xFFFFFFFF);
+
+        for (volatile int i = 0; i < 1000000; ++i) { }
+    }
+}
 
 extern "C" void kernel_main() {
-    idt_init(); // install the idt
-
-    // Initialize serial
+    idt_init();
     serial_init();
-    serial_write_str("CPOSKRNL: serial initialized.\n");
+    kputs("CPOSKRNL: started.");
+    kputs("CPOSKRNL: serial initialized.");
 
-    // set up pic
+    pmm::init();
+    vmm::init();
+    heap_init();
+    kputs("CPOSKRNL: Memory Management System initialized.");
+
+    scheduler::init();
+
+    // create some test threads with different priorities
+    scheduler::create_thread(worker_high, nullptr, 1); // highest priority
+    scheduler::create_thread(worker_low, nullptr, 1);  // lower priority
+
     pic_remap();
     pic_unmask();
-
-    // enable interrupts
     __asm__ __volatile__("sti");
 
-    volatile uint16* vga = (uint16*)0xB8000;
+    // hand control to scheduler
+    scheduler::start();
 
-    const char* msg = "ComputiOS Kernel!";
-    uint32 i = 0;
-    while (msg[i]) {
-        vga[i] = ((uint16)0x0F << 8) | (uint8)msg[i]; // white on black
-        ++i;
-    }
-
-    // test the exception handler by forcefully triggering an exception
-    // __asm__ __volatile__("int $3");
-    // __asm__ __volatile__("ud2");
-
-    // Initialize PCI
-    pci_init();
-
+    // when the scheduler returns back to main_thread, execution resumes here
+    kputs("CPOSKRNL: returned to kernel_main after scheduler. System halted.");
     while (1) {
         __asm__ __volatile__("hlt");
     }

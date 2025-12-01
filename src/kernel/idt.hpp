@@ -1,5 +1,5 @@
 #pragma once
-#include "types.hpp"
+#include "libk/types.hpp"
 
 struct IdtEntry {
     uint16 offset_low;

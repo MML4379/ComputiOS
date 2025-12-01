@@ -1,7 +1,7 @@
 // a basic serial driver so we can log to COM1.
 
 #include "serial.hpp"
-#include "types.hpp"
+#include "libk/types.hpp"
 #include "io.hpp"
 
 // com1 base port

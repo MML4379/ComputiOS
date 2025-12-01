@@ -21,7 +21,9 @@ idt_flush:
 
 %macro MAKE_EXC 1
 isr%1:
+    ; RSP currently points to the saved RIP pushed by the CPU during exception entry
     mov rdi, %1
+    mov rsi, [rsp]          ; pass the saved RIP as second parameter in RSI
     call exception_handler
 .hang%1:
     hlt

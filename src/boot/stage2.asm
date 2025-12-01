@@ -2,13 +2,16 @@
 
 [org 0x8000]
 
-KERNEL_LBA_START     equ 33           ; where Makefile dd's kernel.bin
-KERNEL_SECTOR_COUNT  equ 128          ; 128 * 512 = 64 KiB max kernel size
+KERNEL_LBA_START equ 33           ; where Makefile dd's kernel.bin
+KERNEL_SECTOR_COUNT equ 128          ; 128 * 512 = 64 KiB max kernel size
 
-KERNEL_LOAD_REAL     equ 0x00010000   ; where BIOS loads kernel (real mode)
-KERNEL_PHYS          equ 0x00100000   ; final kernel location (identity-mapped)
+KERNEL_LOAD_REAL equ 0x00010000   ; where BIOS loads kernel (real mode)
+KERNEL_PHYS equ 0x00100000   ; final kernel location (identity-mapped)
 
-KERNEL_DWORD_COUNT   equ (KERNEL_SECTOR_COUNT * 512) / 4   ; for rep movsd
+KERNEL_DWORD_COUNT equ (KERNEL_SECTOR_COUNT * 512) / 4   ; for rep movsd
+
+E820_BUFFER_SEG equ 0x9000
+E820_ENTRY_SIZE equ 20
 
 
 [bits 16]
@@ -34,6 +37,8 @@ start_stage2:
     int 0x13
     jc kernel_disk_error
 
+    call collect_e820
+
     lgdt [gdt_descriptor]
 
     mov eax, cr0
@@ -42,7 +47,6 @@ start_stage2:
 
     ; Far jump into 32-bit code segment
     jmp 0x08:protected_mode_entry
-
 
 ; 16-bit print routine
 print_string_16:
@@ -83,6 +87,50 @@ dap_lba_high:
     dd 0
 
 boot_drive: db 0
+
+collect_e820:
+    ; ES = 0x9000
+    mov ax, E820_BUFFER_SEG
+    mov es, ax
+
+    ; zero count at ES:0
+    xor eax, eax
+    mov [es:0], eax
+
+    ; entries start at ES:0x0010 => phys 0x00090010
+    mov di, 0x0010
+
+    xor ebx, ebx                 ; continuation value = 0
+    mov edx, 0x534D4150          ; 'SMAP'
+
+.e820_next:
+    mov eax, 0xE820
+    mov ecx, E820_ENTRY_SIZE     ; max size we want
+    ; ES:DI = buffer
+    int 0x15
+    jc .e820_done                ; CF=1 -> error or no more
+
+    cmp eax, 0x534D4150          ; 'SMAP'?
+    jne .e820_done
+
+    cmp ecx, 20                  ; BIOS says how many bytes it actually wrote
+    jb .skip_store               ; too small
+
+    ; increment count
+    mov eax, [es:0]
+    inc eax
+    mov [es:0], eax
+
+    ; advance DI for next entry
+    add di, E820_ENTRY_SIZE
+
+.skip_store:
+    test ebx, ebx
+    jne .e820_next               ; EBX != 0 => more entries
+
+.e820_done:
+    ret
+
 
 msg_stage2_real:        db "Doing some prep...", 0x0D, 0x0A, 0
 msg_kernel_disk_error:  db "ERROR: Couldn't find the kernel!", 0
@@ -174,6 +222,8 @@ protected_mode_entry:
     jmp 0x18:long_mode_entry
 
 [bits 64]
+extern kernel_main
+
 long_mode_entry:
     ; Load data segments
     mov ax, 0x10
@@ -221,5 +271,24 @@ p3_table:
 
 align 4096
 p2_table:
-    dq 0x0000000000000083       ; 2MiB page at 0x00000000 (P=1, RW=1, PS=1)
-    times 511 dq 0
+    ; Identity-map the first 32MiB (2MiB pages * 16 entries). This
+    ; ensures the kernel can access physical memory up to 32MiB while
+    ; it's still running on the initial identity-mapped page tables.
+    ; Flags: P=1, RW=1, PS=1 -> 0x83
+    dq 0x0000000000000083       ; 2MiB page at 0x00000000
+    dq 0x0000000000200083       ; 2MiB page at 0x00200000
+    dq 0x0000000000400083       ; 2MiB page at 0x00400000
+    dq 0x0000000000600083       ; 2MiB page at 0x00600000
+    dq 0x0000000000800083       ; 2MiB page at 0x00800000
+    dq 0x0000000000A00083       ; 2MiB page at 0x00A00000
+    dq 0x0000000000C00083       ; 2MiB page at 0x00C00000
+    dq 0x0000000000E00083       ; 2MiB page at 0x00E00000
+    dq 0x0000000001000083       ; 2MiB page at 0x01000000
+    dq 0x0000000001200083       ; 2MiB page at 0x01200000
+    dq 0x0000000001400083       ; 2MiB page at 0x01400000
+    dq 0x0000000001600083       ; 2MiB page at 0x01600000
+    dq 0x0000000001800083       ; 2MiB page at 0x01800000
+    dq 0x0000000001A00083       ; 2MiB page at 0x01A00000
+    dq 0x0000000001C00083       ; 2MiB page at 0x01C00000
+    dq 0x0000000001E00083       ; 2MiB page at 0x01E00000
+    times 495 dq 0

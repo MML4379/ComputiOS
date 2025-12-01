@@ -1,5 +1,5 @@
 #pragma once
-#include "types.hpp"
+#include "libk/types.hpp"
 
 void pic_remap();
 void pic_unmask();

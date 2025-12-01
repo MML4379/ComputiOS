@@ -1,7 +1,7 @@
 // Is this ugly? Absolutely. Does it work? Absolutely. I do not care how it looks as long as it works, and neither should you.
 
 #include "pci.hpp"
-#include "types.hpp"
+#include "libk/types.hpp"
 #include "serial.hpp"
 #include "io.hpp"
 

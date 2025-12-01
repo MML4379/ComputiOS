@@ -1,5 +1,5 @@
 #include "idt.hpp"
-#include "types.hpp"
+#include "libk/types.hpp"
 #include "pic.hpp"
 #include "io.hpp"
 
@@ -55,7 +55,7 @@ extern "C" void isr46();
 extern "C" void isr47();
 
 extern "C" void idt_flush(uint64 idt_descriptor_ptr);
-extern "C" void exception_handler(uint64 vec);
+extern "C" void exception_handler(uint64 vec, uint64 rip);
 extern "C" void irq_handler(uint64 vec);
 
 static IdtEntry idt[256];
@@ -189,7 +189,7 @@ static void print_hex(int row, int col, uint64 val, uint8 attr) {
 }
 
 // exception handler
-extern "C" void exception_handler(uint64 vec) {
+extern "C" void exception_handler(uint64 vec, uint64 rip) {
     // Red header
     for (int col = 0; col < 80; ++col) {
         putc_at(0, col, ' ', 0x4F); // white on red background
@@ -197,6 +197,33 @@ extern "C" void exception_handler(uint64 vec) {
 
     print_str(0, 2, "CPU EXCEPTION: ", 0x4F);
     print_dec(0, 17, vec, 0x4F);
+
+    // we get RIP from RSI (saved by the ISR stub), now get CS/RFLAGS from the
+    // stack. We can't rely on RSP position because the compiler creates a
+    // prologue, so just read the stack with an explicit asm that uses RSP.
+    uint64 cs = 0;
+    uint64 rflags = 0;
+    __asm__ __volatile__("mov 16(%%rsp), %%rax\n\t" /* saved CS */
+                         "mov 24(%%rsp), %%rbx\n\t" /* saved RFLAGS */
+                         : "=a"(cs), "=b"(rflags) : : "rcx");
+
+    print_str(1, 2, "Saved RIP: 0x", 0x4F);
+    print_hex(1, 16, rip, 0x4F);
+    print_str(2, 2, "Saved CS: 0x", 0x4F);
+    print_hex(2, 12, cs, 0x4F);
+    print_str(3, 2, "Saved RFLAGS: 0x", 0x4F);
+    print_hex(3, 19, rflags, 0x4F);
+
+    // Attempt to read up to 8 bytes of the instruction at RIP and print them
+    uint64 maybe_instr = 0;
+    if (rip) {
+        // Attempt to read 8 bytes at 'rip'; use volatile to avoid compiler
+        // reordering. This can fault, but hopefully the handler can detect
+        // and print something sensible.
+        maybe_instr = *((volatile uint64*)rip);
+        print_str(4, 2, "Instr bytes: 0x", 0x4F);
+        print_hex(4, 16, maybe_instr, 0x4F);
+    }
 
     if (vec == 14) {  // Page Fault
         uint64 cr2;

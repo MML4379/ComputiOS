@@ -1,5 +1,5 @@
 #pragma once
-#include "types.hpp"
+#include "libk/types.hpp"
 
 void serial_init();
 void serial_write_char(char c);

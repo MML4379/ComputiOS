@@ -140,7 +140,6 @@ namespace scheduler {
     }
 
     // yields the CPU to another thread of same or higher priority, if none are found yield to lower priority thread.
-    __attribute__((noinline))
     void yield() {
         kprintf("SCHEDULER: yield() entered, current id=%u\n",
             current_thread ? current_thread->id : 0xFFFFFFFF);
@@ -148,9 +147,7 @@ namespace scheduler {
         Thread* self = current_thread;
         if (!self) return;
 
-        if (self->state == ThreadState::Runnable) {
-            enqueue_thread(self);
-        }
+        if (self->state == ThreadState::Runnable) enqueue_thread(self);
 
         Thread* next = nullptr;
 
@@ -167,7 +164,7 @@ namespace scheduler {
                     cur->next = nullptr;
                     next = cur;
                     break;
-                }
+                } else if (cur == self) break;
                 prev = cur;
                 cur  = cur->next;
             }
@@ -223,7 +220,7 @@ namespace scheduler {
 
         kprintf("SCHEDULER: starting scheduler, switching to thread id=%u\n", next->id);
         context_switch(&prev->ctx, &next->ctx);
-        // when the scheduler eventually switches back to main_thread, execution resumes here (or at least it should)
+        // when the scheduler eventually switches back to main_thread, execution resumes here
     }
 } // namespace scheduler
 

@@ -9,7 +9,7 @@ BUILD_DIR = build
 BOOT_DIR = src/boot
 KERNEL_DIR = src/kernel
 
-KERNEL_OBJS = $(BUILD_DIR)/kernel.o $(BUILD_DIR)/idt.o $(BUILD_DIR)/isr.o $(BUILD_DIR)/pic.o $(BUILD_DIR)/serial.o $(BUILD_DIR)/pci.o
+KERNEL_OBJS = $(BUILD_DIR)/kernel.o $(BUILD_DIR)/idt.o $(BUILD_DIR)/isr.o $(BUILD_DIR)/pic.o $(BUILD_DIR)/serial.o $(BUILD_DIR)/pci.o $(BUILD_DIR)/memory_manager.o $(BUILD_DIR)/vmm.o $(BUILD_DIR)/kernel_entry.o
 
 all: $(BUILD_DIR)/disk.img
 
@@ -21,6 +21,9 @@ $(BUILD_DIR)/stage1.bin: $(BOOT_DIR)/stage1.asm | $(BUILD_DIR)
 
 $(BUILD_DIR)/stage2.bin: $(BOOT_DIR)/stage2.asm | $(BUILD_DIR)
 	$(NASM) -f bin $< -o $@
+
+$(BUILD_DIR)/kernel_entry.o: $(KERNEL_DIR)/kernel_entry.asm | $(BUILD_DIR)
+	$(NASM) -f elf64 $< -o $@
 
 $(BUILD_DIR)/kernel.o: $(KERNEL_DIR)/kernel.cpp | $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@

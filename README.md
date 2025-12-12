@@ -1,13 +1,42 @@
 # ComputiOS
 Computer Operating System, something I work on in the free time I have. 
+I don't have any idea where the name (more so the "i" in ComputiOS) came from, but it clicks.
+-----------------------------------------------------------------------------------------------
 
 ## My goals for this OS
-I want this operating system to be able to play Crab Rave on YouTube, whilst rendering a nice looking UI. Quite the ambitious goal but I will get there some day. It will be a 64 bit OS, targeted towards real, modern hardware.
+I want this operating system to be able to play Crab Rave on YouTube, while rendering a nice looking UI. This goal is definitely more than ambitious, but I believe with enough time I can meet that goal. It will be a 64 bit OS, targeted towards real, modern hardware. 
 
-## What I've done so far:
-- Bootloader that essentially loads the kernel, sets up protected mode and long mode with paging, and passes control to the kernel. 
-- A kernel with some basic interrupt and exception handling, and logging to a serial console.
-- A PCI "driver" that prints all of the devices to the console and to the screen
-- I've also got PIC, a timer system, and a super basic keyboard driver going.
+## What I've built so far:
+- A BIOS-only bootloader I wrote myself that sets up long mode, paging, (eventually) video, and loads the kernel.
+- A small kernel with a tick system that runs off the PIC.
+- An interrupt descriptor table with an exception handler
+- A physical and virtual memory manager.
 
-There's much more to be done, obviously.
+## What I'm planning to add in the future (in no particular order):
+- A preemptive scheduler that differentiates processes from threads and vice versa.
+- An upgraded tick system using the APIC.
+- A more solid IDT that handles more exceptions cleanly.
+- An AHCI SATA driver to read FAT32 partitions and beyond.
+- My own journaling filesystem made for the OS.
+- A driver model so I can write more drivers more efficiently, allow the kernel to manage them, and to add PnP support.
+- A USB HID driver for keyboards, mice, controllers and such.
+- UEFI boot support (written myself, of course).
+- Network Interface Device drivers.
+- TCP/IP support.
+- HTTP/TLS support.
+- Audio/video encoding/decoding.
+- And more, as I think of things to add or I get requests to add things.
+
+# HOW TO RUN
+- You will need a cross compiler+linker, more specifically GCC and LD cross compiled for x86_64-ELF
+....- For more info on building a cross compiler, check out [GCC Cross-Compiler on the OSDev Wiki](https://wiki.osdev.org/GCC_Cross-Compiler)
+- You will also need to install `nasm` to assemble the assembly files.
+- If you want to run it, you'll also need `qemu-system-x86_64`
+
+When everything is setup...
+- First run `make clean` to make the prerequisite `build` folder.
+- Then run `make` to actually compile everything.
+- To run it in qemu, run `make clean`.
+
+# PULL REQUESTS
+If there is a problem and you know the solution, please create a pull request to fix it. I can't catch every problem, and seeing what other people catch is really helpful.

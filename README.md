@@ -1,7 +1,6 @@
 # ComputiOS
 Computer Operating System, something I work on in the free time I have. 
 I don't have any idea where the name (more so the "i" in ComputiOS) came from, but it clicks.
------------------------------------------------------------------------------------------------
 
 ## My goals for this OS
 I want this operating system to be able to play Crab Rave on YouTube, while rendering a nice looking UI. This goal is definitely more than ambitious, but I believe with enough time I can meet that goal. It will be a 64 bit OS, targeted towards real, modern hardware. 

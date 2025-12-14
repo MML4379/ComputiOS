@@ -3,6 +3,7 @@
 #include "pic.hpp"
 #include "io.hpp"
 #include "vga.hpp"
+#include "../drivers/ps2/ps2.hpp"
 
 extern "C" void isr0();
 extern "C" void isr1();
@@ -213,12 +214,9 @@ extern "C" void irq_handler(uint64 vec) {
         // Show ticks in green on row 3
         print_str(3, 0, "Ticks: ", 0x0A);
         print_dec(3, 7, g_ticks, 0x0A);
-    } else if (irq == 1) {
-        // Keyboard
-        uint8 sc = inb(0x60);
-        g_last_scancode = sc;
-        print_str(4, 0, "Last scancode: 0x", 0x0B);
-        print_hex(4, 17, g_last_scancode, 0x0B);
+    } else if (irq == 1 || irq == 12) {
+        // Keyboard+mouse
+        ps2::on_irq(irq);
     }
 
     pic_send_eoi(irq);

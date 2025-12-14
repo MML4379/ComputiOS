@@ -75,9 +75,7 @@ namespace pmm {
             const E820Entry& e = e820_entries[i];
             if (e.type != 1) continue; // not usable RAM
 
-            uint64 region_start = e.base;
             uint64 region_end = e.base + e.length;
-
             if (region_end > max_usable_end) {
                 max_usable_end = region_end;
             }

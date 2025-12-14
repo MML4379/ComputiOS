@@ -7,4 +7,5 @@ extern "C" {
     int strncmp(const char* a, const char* b, uint64 n);
     char* strcpy(char* dst, const char* src);
     char* strncpy(char* dst, const char* src, uint64 n);
+    bool streq(const char* a, const char* b);
 }

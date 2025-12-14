@@ -13,6 +13,9 @@ KERNEL_DWORD_COUNT equ (KERNEL_SECTOR_COUNT * 512) / 4   ; for rep movsd
 E820_BUFFER_SEG equ 0x9000
 E820_ENTRY_SIZE equ 20
 
+FB_INFO_PHYS equ 0x0008F000
+VBE_CTRL_PHYS equ 0x0008D000
+VBE_MODE_PHYS equ 0x0008E000
 
 [bits 16]
 start_stage2:
@@ -37,6 +40,8 @@ start_stage2:
     int 0x13
     jc kernel_disk_error
 
+    call vbe_set_1280x720x32
+
     call collect_e820
 
     lgdt [gdt_descriptor]
@@ -47,6 +52,139 @@ start_stage2:
 
     ; Far jump into 32-bit code segment
     jmp 0x08:protected_mode_entry
+
+; set VBE mode
+vbe_set_1280x720x32:
+    pusha
+    push ds
+    push es
+
+    ; ES:DI -> VBE Controller Info block (must be in real mode memory)
+    mov ax, VBE_CTRL_PHYS >> 4
+    mov es, ax
+    xor di, di
+
+    ; Must put 'VBE2' signature to request VBE 2.0+ info
+    mov dword [es:di], 0x32454256   ; 'VBE2'
+
+    mov ax, 0x4F00
+    int 0x10
+    cmp ax, 0x004F
+    jne .fail
+
+    ; ModeList pointer is at offset 0x0E (far ptr: seg:off)
+    mov bx, [es:di + 0x0E]          ; offset
+    mov cx, [es:di + 0x10]          ; segment
+
+    mov ds, cx
+    mov si, bx
+
+.next_mode:
+    lodsw                            ; AX = mode
+    cmp ax, 0xFFFF
+    je .fail
+
+    push ax                          ; save mode
+
+    ; Get ModeInfo into ES:DI at VBE_MODE_PHYS
+    mov ax, VBE_MODE_PHYS >> 4
+    mov es, ax
+    xor di, di
+
+    push bp
+    mov bp, sp
+    mov cx, [bp+2]                   ; CX = mode (from stack)
+    pop bp
+    mov ax, 0x4F01
+    int 0x10
+    cmp ax, 0x004F
+    jne .pop_and_continue
+
+    ; Check ModeAttributes: supported + graphics + LFB
+    mov ax, [es:di + 0x00]
+    test ax, 1                        ; bit0 supported
+    jz .pop_and_continue
+    test ax, (1 << 7)                 ; bit7 LFB available
+    jz .pop_and_continue
+
+    ; Check bpp at offset 0x19
+    mov al, [es:di + 0x19]
+    cmp al, 32
+    jne .pop_and_continue
+
+    ; Check memory model at 0x1B = 6 (Direct Color)
+    mov al, [es:di + 0x1B]
+    cmp al, 6
+    jne .pop_and_continue
+
+    ; Check resolution X (0x12), Y (0x14)
+    mov ax, [es:di + 0x12]
+    cmp ax, 1280
+    jne .pop_and_continue
+
+    mov ax, [es:di + 0x14]
+    cmp ax, 720
+    jne .pop_and_continue
+
+    ; Found a match! Set mode with LFB bit (bit14 in BX)
+    pop ax                            ; AX = mode
+    mov bx, ax
+    or  bx, 0x4000                    ; request linear framebuffer
+    mov ax, 0x4F02
+    int 0x10
+    cmp ax, 0x004F
+    jne .fail
+
+    ; Write FramebufferInfo to FB_INFO_PHYS
+    ; ModeInfo fields:
+    ; BytesPerScanLine @ 0x10 (uint16)
+    ; XRes @ 0x12 (uint16)
+    ; YRes @ 0x14 (uint16)
+    ; PhysBasePtr @ 0x28 (uint32)
+    ; BPP @ 0x19 (uint8)
+
+    mov ax, FB_INFO_PHYS >> 4
+    mov ds, ax
+    xor si, si                        ; DS:SI points to FB_INFO_PHYS
+
+    ; phys_base (uint64) - store low dword, high dword = 0
+    mov eax, [es:di + 0x28]
+    mov [ds:si + 0], eax
+    mov dword [ds:si + 4], 0
+
+    ; width (uint32)
+    movzx eax, word [es:di + 0x12]
+    mov [ds:si + 8], eax
+
+    ; height (uint32)
+    movzx eax, word [es:di + 0x14]
+    mov [ds:si + 12], eax
+
+    ; pitch (uint32)
+    movzx eax, word [es:di + 0x10]
+    mov [ds:si + 16], eax
+
+    ; bpp (uint32)
+    movzx eax, byte [es:di + 0x19]
+    mov [ds:si + 20], eax
+
+    ; format (uint32)
+    mov dword [ds:si + 24], 0
+
+    jmp .ok
+
+.pop_and_continue:
+    pop ax
+    jmp .next_mode
+
+.fail:
+    ; If VBE fails, you can keep text mode and still boot.
+    ; For debugging, you might want to print something, but keep it simple.
+.ok:
+    pop es
+    pop ds
+    popa
+    ret
 
 ; 16-bit print routine
 print_string_16:
@@ -251,10 +389,9 @@ long_mode_entry:
     jmp .print_loop_64
 
 .after_msg:
-    ; Jump to kernel at physical/virtual 0x00100000
+    mov rdi, FB_INFO_PHYS
     mov rax, KERNEL_PHYS
     jmp rax
-
 
 msg_long_mode: db "CPU supports 64-bit, switching to kernel...", 0
 

@@ -16,6 +16,7 @@ extern "C" {
             if (a[i] > b[i]) return 1;
             ++i;
         }
+        return 0;
     }
 
     int strncmp(const char* a, const char* b, uint64 n) {
@@ -49,5 +50,11 @@ extern "C" {
             dst[i] = '\0';
         }
         return dst;
+    }
+
+    bool streq(const char* a, const char* b) {
+        if (!a || !b) return false;
+        while (*a && *b) { if (*a++ != *b++) return false; }
+        return *a == *b;
     }
 } // extern "C"

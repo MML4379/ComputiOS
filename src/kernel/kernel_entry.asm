@@ -6,8 +6,13 @@ extern kernel_main
 section .start
 
 kernel_entry:
-    ; jump straight to the kernel main function
-    jmp kernel_main
+    ; ensure stack is 16-byte aligned before calling kernel
+    ; it usually is, but don't assume that it is
+    mov rbp, 0
+    and rsp, -16
+    sub rsp, 8 ; make it like a call frame (SysV alignment)
+
+    call kernel_main
 
 .hang:
     cli

@@ -38,3 +38,35 @@ void serial_write_str(const char *s) {
         ++s;
     }
 }
+
+void serial_write_hex8(uint8 v) {
+    for (int i = 1; i >= 0; --i) {
+        uint8 nib = (v >> (i * 4)) & 0xF;
+        char c = (nib < 10)? ('0' + nib) : ('A' + (nib - 10));
+        serial_write_char(c);
+    }
+}
+
+void serial_write_hex16(uint16 v) {
+    for (int i = 3; i >= 0; --i) {
+        uint8 nib = (v >> (i * 4)) & 0xF;
+        char c = (nib < 10)? ('0' + nib) : ('A' + (nib - 10));
+        serial_write_char(c);
+    }
+}
+
+void serial_write_hex32(uint32 v) {
+    for (int i = 7; i >= 0; --i) {
+        uint8 nib = (v >> (i * 4)) & 0xF;
+        char c = (nib < 10)? ('0' + nib) : ('A' + (nib - 10));
+        serial_write_char(c);
+    }
+}
+
+void serial_write_hex64(uint64 v) {
+    for (int i = 15; i >= 0; --i) {
+        uint8 nib = (v >> (i * 4)) & 0xF;
+        char c = (nib < 10)? ('0' + nib) : ('A' + (nib - 10));
+        serial_write_char(c);
+    }
+}

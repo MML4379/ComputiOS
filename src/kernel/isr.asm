@@ -70,7 +70,6 @@ MAKE_EXC 31
     push rcx
     push rdx
     push rbx
-    push rsp
     push rbp
     push rsi
     push rdi
@@ -96,7 +95,6 @@ MAKE_EXC 31
     pop rdi
     pop rsi
     pop rbp
-    pop rsp
     pop rbx
     pop rdx
     pop rcx
@@ -106,8 +104,10 @@ MAKE_EXC 31
 %macro MAKE_IRQ 1
 isr%1:
     PUSH_ALL
+    sub rsp, 8
     mov rdi, %1
     call irq_handler
+    add rsp, 8
     POP_ALL
     iretq
 %endmacro

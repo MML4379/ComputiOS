@@ -33,8 +33,8 @@ I want this operating system to be able to play Crab Rave on YouTube, while rend
 - If you want to run it, you'll also need `qemu-system-x86_64`
 
 When everything is setup...
-- First run `make clean` to make the prerequisite `build` folder.
-- Then run `make` to actually compile everything.
+- First run `make clean` to make sure there's no build folder with garbage or old output files.
+- Then run `make` to create the build folder and compile everything there.
 - To run it in qemu, run `make run`.
 
 # PULL REQUESTS

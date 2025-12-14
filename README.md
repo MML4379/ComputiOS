@@ -35,7 +35,7 @@ I want this operating system to be able to play Crab Rave on YouTube, while rend
 When everything is setup...
 - First run `make clean` to make the prerequisite `build` folder.
 - Then run `make` to actually compile everything.
-- To run it in qemu, run `make clean`.
+- To run it in qemu, run `make run`.
 
 # PULL REQUESTS
 If there is a problem and you know the solution, please create a pull request to fix it. I can't catch every problem, and seeing what other people catch is really helpful.

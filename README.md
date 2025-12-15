@@ -12,11 +12,11 @@ I want this operating system to be able to play Crab Rave on YouTube, while rend
 - A physical and virtual memory manager.
 - A driver model that registers and binds devices to drivers on boot.
 - A framebuffer-based software GUI renderer that can render rectangles and text in 32-bit color.
+- An AHCI driver that reads disks from SATA ports and assigns them an ID (e.g. disk0, disk1).
 
 ## What I'm planning to add in the future (in no particular order):
 - A preemptive scheduler that differentiates processes from threads and vice versa.
 - An upgraded tick system using the APIC.
-- An AHCI SATA driver to read FAT32 partitions and beyond.
 - My own journaling filesystem made for the OS.
 - A USB HID driver for keyboards, mice, controllers and such.
 - UEFI boot support (written myself, of course).

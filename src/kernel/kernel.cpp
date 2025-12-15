@@ -1,18 +1,24 @@
-#include "libk/types.hpp"
-#include "idt.hpp"
-#include "pic.hpp"
-#include "serial.hpp"
-#include "pci.hpp"
-#include "libk/kprint.hpp"
-#include "memory_manager.hpp"
-#include "vmm.hpp"
-#include "heap.hpp"
-#include "vga.hpp"
-#include "kdm.hpp"
-#include "io.hpp"
-#include "../drivers/ps2/ps2_register.hpp"
-#include "../drivers/ps2/ps2.hpp"
-#include "graphics.hpp"
+// ComputiOS Kernel
+// https://github.com/MML4379/ComputiOS
+
+#include "kernel.hpp"
+#include "panic.hpp"
+#include <arch/x86_64/gdt.hpp>
+#include <arch/x86_64/tss.hpp>
+#include <libk/kprint.hpp>
+#include <libk/types.hpp>
+#include <arch/x86_64/idt.hpp>
+#include <arch/x86_64/pic.hpp>
+#include <arch/x86_64/serial.hpp>
+#include <arch/x86_64/io.hpp>
+#include <mm/memory_manager.hpp>
+#include <mm/vmm.hpp>
+#include <mm/heap.hpp>
+#include <drivers/kdm.hpp>
+#include <drivers/pci.hpp>
+#include <drivers/input/ps2.hpp>
+#include <drivers/input/ps2_register.hpp>
+#include <gfx/graphics.hpp>
 
 #define FB_INFO_PHYS 0x0008F000
 
@@ -20,15 +26,8 @@ extern "C" {
     void ps2_register();
     void ps2_kb_register();
     void ps2_mouse_register();
-}
-
-static void print_sdec(int row, int col, int64 v, uint8 attr) {
-    if (v < 0) {
-        print_str(row, col, "-", attr);
-        print_dec(row, col + 1, (uint64)(-v), attr);
-    } else {
-        print_dec(row, col, (uint64)v, attr);
-    }
+    void syscall_init();
+    void tss_flush();
 }
 
 struct BootFramebuffer {
@@ -49,57 +48,54 @@ struct BootInfo {
 BootInfo* bootinfo = (BootInfo*)FB_INFO_PHYS;
 
 extern "C" void kernel_main() {
+    // 1. CPU state
+    gdt_init();
+    tss_init();
     idt_init();
+    tss_flush();
+
+    // 2. Early logging
     serial_init();
     kputs("CPOSKRNL: Getting Ready...");
-    kputs("CPOSKRNL: IDT initialized.");
+    kputs("CPOSKRNL: GDT, TSS & IDT initialized.");
     kputs("CPOSKRNL: Logging to Serial Port COM1.");
-    
+
+    // 3. Memory
     pmm::init();
     vmm::init();
     heap_init();
     kputs("CPOSKRNL: Memory Management System initialized.");
 
-    kdm::kdm_init();
-    kputs("CPOSKRNL: KDM initialized.");
-
-    // register platform drivers first (like the PS/2 drivers)
-    ps2_register();
-    ps2_kb_register();
-    ps2_mouse_register();
-    kputs("CPOSKRNL: 'PS/2 Controller Driver' registered.");
-    kputs("CPOSKRNL: 'PS/2 Keyboard Driver' registered.");
-    kputs("CPOSKRNL: 'PS/2 Mouse Driver' registered.");
-
-    // enumerate the devices
-    pci_init();
-    kputs("CPOSKRNL: PCI intiailized.");
-
-    kdm::Device d{};
-
-    d = {};
-    d.name = "ps2";
-    d.bus  = kdm::BusType::PLATFORM;
-    kdm::kdm_register_device(d);
-
-    d = {};
-    d.name = "ps2-kb";
-    d.bus  = kdm::BusType::PLATFORM;
-    kdm::kdm_register_device(d);
-
-    d = {};
-    d.name = "ps2-mouse";
-    d.bus  = kdm::BusType::PLATFORM;
-    kdm::kdm_register_device(d);
-
-    // bind devices to drivers
-    kdm::kdm_bind_all();
-    kputs("CPOSKRNL: KDM device/driver bind complete.");
-
+    // 4. Interrupt routing
     pic_remap();
     outb(0x21, 0xF8);
     outb(0xA1, 0xEF);
 
+    // 5. Syscalls
+    syscall_init();
+    kputs("CPOSKRNL: Syscall interface initialized.");
+
+    // 6. Driver model
+    kdm::kdm_init();
+    kputs("CPOSKRNL: KDM initialized.");
+
+    ps2_register();
+    ps2_kb_register();
+    ps2_mouse_register();
+
+    pci_init();
+    kputs("CPOSKRNL: PCI initialized.");
+
+    kdm::Device d{};
+
+    d = {}; d.name = "ps2"; d.bus = kdm::BusType::PLATFORM; kdm::kdm_register_device(d);
+    d = {}; d.name = "ps2-kb"; d.bus = kdm::BusType::PLATFORM; kdm::kdm_register_device(d);
+    d = {}; d.name = "ps2-mouse"; d.bus = kdm::BusType::PLATFORM; kdm::kdm_register_device(d);
+
+    kdm::kdm_bind_all();
+    kputs("CPOSKRNL: KDM device/driver bind complete.");
+
+    // 7. Graphics
     if (!gfx::init((gfx::FramebufferInfo*)&bootinfo->fb)) {
         kputs("CPOS_GFX: Initialization failed!");
         while (1) asm volatile("hlt");
@@ -108,9 +104,10 @@ extern "C" void kernel_main() {
     gfx::ui_draw();
     gfx::present();
 
+    // 8. Interrupts ON
     asm volatile("sti");
+    kputs("CPOSKRNL: Ready.");
 
-    kputs("CPOSKRNL: Kernel OK!");
-
+    // 9. Idle
     for (;;) asm volatile("hlt");
 }

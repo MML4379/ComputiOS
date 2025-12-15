@@ -1,9 +1,9 @@
 #include "kprint.hpp"
 #include "types.hpp"
-#include "../serial.hpp"
 #include <stdarg.h>
+#include <kernel/arch/x86_64/serial.hpp>
 
-static void kputchar(char c) {
+void kputc(char c) {
     serial_write_char(c);
 }
 
@@ -11,11 +11,11 @@ void kputs(const char* s) {
     // print string then newline
     while (*s) {
         if (*s == '\n') {
-            kputchar('\r'); // CRLF for terminals
+            kputc('\r'); // CRLF for terminals
         }
-        kputchar(*s++);
+        kputc(*s++);
     }
-    kputchar('\n');
+    kputc('\n');
 }
 
 // integer to string helpers
@@ -25,7 +25,7 @@ static void kprint_dec_uint64(uint64 val) {
     int i = 0;
 
     if (val == 0) {
-        kputchar('0');
+        kputc('0');
         return;
     }
 
@@ -37,13 +37,13 @@ static void kprint_dec_uint64(uint64 val) {
 
     while (i > 0) {
         --i;
-        kputchar(buf[i]);
+        kputc(buf[i]);
     }
 }
 
 static void kprint_dec_int64(int64 val) {
     if (val < 0) {
-        kputchar('-');
+        kputc('-');
         // careful with INT64_MIN; cast to unsigned magnitude
         uint64 mag = (uint64)(-(val + 1)) + 1;
         kprint_dec_uint64(mag);
@@ -53,12 +53,12 @@ static void kprint_dec_int64(int64 val) {
 }
 
 static void kprint_hex_uint64(uint64 val) {
-    kputchar('0');
-    kputchar('x');
+    kputc('0');
+    kputc('x');
     for (int i = 15; i >= 0; --i) {
         uint8 nib = (uint8)((val >> (i * 4)) & 0xF);
         char c = (nib < 10) ? ('0' + nib) : ('A' + (nib - 10));
-        kputchar(c);
+        kputc(c);
     }
 }
 
@@ -71,9 +71,9 @@ void kprintf(const char* fmt, ...) {
     while (*fmt) {
         if (*fmt != '%') {
             if (*fmt == '\n') {
-                kputchar('\r');
+                kputc('\r');
             }
-            kputchar(*fmt++);
+            kputc(*fmt++);
             continue;
         }
 
@@ -84,12 +84,12 @@ void kprintf(const char* fmt, ...) {
         char spec = *fmt++;
         switch (spec) {
         case '%':
-            kputchar('%');
+            kputc('%');
             break;
 
         case 'c': {
             int c = va_arg(args, int);
-            kputchar((char)c);
+            kputc((char)c);
             break;
         }
 
@@ -98,9 +98,9 @@ void kprintf(const char* fmt, ...) {
             if (!s) s = "(null)";
             while (*s) {
                 if (*s == '\n') {
-                    kputchar('\r');
+                    kputc('\r');
                 }
-                kputchar(*s++);
+                kputc(*s++);
             }
             break;
         }
@@ -127,8 +127,8 @@ void kprintf(const char* fmt, ...) {
 
         default:
             // unknown specifier, print it literally
-            kputchar('%');
-            kputchar(spec);
+            kputc('%');
+            kputc(spec);
             break;
         }
     }

@@ -25,6 +25,7 @@ DRV_DIR = $(KERNEL_DIR)/drivers
 INP_DIR = $(DRV_DIR)/input
 GFX_DIR = $(KERNEL_DIR)/gfx
 IPC_DIR = $(KERNEL_DIR)/ipc
+STO_DIR = $(DRV_DIR)/storage
 
 # ============================================================
 # Kernel Objects
@@ -54,12 +55,14 @@ KERNEL_OBJS = \
 	$(BUILD_DIR)/memory.o \
 	$(BUILD_DIR)/string.o \
 	$(BUILD_DIR)/kprint.o \
+	$(BUILD_DIR)/new.o \
 	$(BUILD_DIR)/kdm.o \
 	$(BUILD_DIR)/pci.o \
 	$(BUILD_DIR)/ps2.o \
 	$(BUILD_DIR)/ps2_kb.o \
 	$(BUILD_DIR)/ps2_mouse.o \
-	$(BUILD_DIR)/graphics.o
+	$(BUILD_DIR)/graphics.o \
+	$(BUILD_DIR)/ahci.o \
 
 # ============================================================
 # Targets
@@ -157,6 +160,9 @@ $(BUILD_DIR)/string.o: $(LIBK_DIR)/string.cpp | $(BUILD_DIR)
 $(BUILD_DIR)/kprint.o: $(LIBK_DIR)/kprint.cpp | $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
+$(BUILD_DIR)/new.o: $(LIBK_DIR)/new.cpp | $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
 # ---------------- DRIVERS ----------------
 
 $(BUILD_DIR)/kdm.o: $(DRV_DIR)/kdm.cpp | $(BUILD_DIR)
@@ -172,6 +178,9 @@ $(BUILD_DIR)/ps2_kb.o: $(INP_DIR)/ps2_kb.cpp | $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(BUILD_DIR)/ps2_mouse.o: $(INP_DIR)/ps2_mouse.cpp | $(BUILD_DIR)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+$(BUILD_DIR)/ahci.o: $(STO_DIR)/ahci/ahci.cpp | $(BUILD_DIR)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # ---------------- GFX ----------------
@@ -195,13 +204,13 @@ $(BUILD_DIR)/disk.img: $(BUILD_DIR)/stage1.bin $(BUILD_DIR)/stage2.bin $(BUILD_D
 
 run: all
 	$(QEMU) \
-		-drive file=$(BUILD_DIR)/disk.img,format=raw,if=none,id=vd0 \
-		-device virtio-blk-pci,drive=vd0 \
-		-netdev user,id=net0 \
-		-device virtio-net-pci,netdev=net0 \
+		-machine q35 \
+		-m 2G \
 		-serial stdio \
 		-vga std \
-		-m 2G
+		-device ich9-ahci,id=ahci \
+		-drive id=disk,file=build/disk.img,format=raw,if=none \
+		-device ide-hd,drive=disk,bus=ahci.0
 
 clean:
 	rm -rf $(BUILD_DIR)

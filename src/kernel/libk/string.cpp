@@ -1,4 +1,6 @@
 #include "string.hpp"
+#include <mm/heap.hpp>
+#include <libk/memory.hpp>
 
 extern "C" {
     uint64 strlen(const char* s) {
@@ -57,4 +59,22 @@ extern "C" {
         while (*a && *b) { if (*a++ != *b++) return false; }
         return *a == *b;
     }
-} // extern "C"
+
+    char* strdup(const char* s) {
+        if (s == nullptr) return nullptr;
+
+        // calculate required size
+        size_t len = strlen(s);
+        size_t req = len + 1;
+
+        // allocate memory
+        char* new_str = (char*)kmalloc(req);
+
+        if (new_str == nullptr) return nullptr;
+
+        // copy the string content
+        memcpy(new_str, s, req);
+
+        return new_str;
+    }
+} 

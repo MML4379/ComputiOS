@@ -8,4 +8,5 @@ extern "C" {
     char* strcpy(char* dst, const char* src);
     char* strncpy(char* dst, const char* src, uint64 n);
     bool streq(const char* a, const char* b);
+    char* strdup(const char* s);
 }

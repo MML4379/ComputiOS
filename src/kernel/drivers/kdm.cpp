@@ -98,10 +98,7 @@ namespace kdm {
         return &g_drivers[i];
     }
 
-    // -------------------------
-    // Binding
-    // -------------------------
-
+    // binding
     static bool driver_matches_device(const Driver& drv, const Device& dev) {
         if (drv.bus != dev.bus) return false;
         if (drv.match) return drv.match(&dev);
@@ -120,13 +117,13 @@ namespace kdm {
 
                 if (drv.probe(dev)) {
                     dev->bound = true;
-                    kprintf("kdm: bound device to driver '%s'\n", drv.name ? drv.name : "(unnamed)");
+                    kprintf("KDM: bound device to driver '%s'\n", drv.name ? drv.name : "(unnamed)");
                     break;
                 }
             }
 
             if (!dev->bound) {
-                kprintf("kdm: no driver for device\n");
+                kprintf("KDM: no driver for device\n");
             }
         }
     }
@@ -138,20 +135,20 @@ namespace kdm {
     bool kdm_publish_devnode(const DevNode& node) {
         if (!node.name) return false;
         if (g_devnode_count >= KDM_MAX_DEVNODES) {
-            kprintf("kdm: devnode registry full\n");
+            kprintf("KDM: devnode registry full\n");
             return false;
         }
 
         // Prevent duplicates by name
         for (size_t i = 0; i < g_devnode_count; ++i) {
             if (streq(g_devnodes[i].name, node.name)) {
-                kprintf("kdm: devnode '%s' already exists\n", node.name);
+                kprintf("KDM: devnode '%s' already exists\n", node.name);
                 return false;
             }
         }
 
         g_devnodes[g_devnode_count++] = node;
-        kprintf("kdm: published devnode '%s'\n", node.name);
+        kprintf("KDM: published devnode '%s'\n", node.name);
         return true;
     }
 

@@ -10,5 +10,5 @@ typedef signed short int16;
 typedef signed int int32;
 typedef signed long long int64;
 
-typedef uint64 size_t;
-typedef int64 ssize_t;
+using size_t = unsigned long;
+using ssize_t = signed long;

@@ -18,6 +18,7 @@
 #include <drivers/pci.hpp>
 #include <drivers/input/ps2.hpp>
 #include <drivers/input/ps2_register.hpp>
+#include <drivers/storage/ahci/ahci_register.hpp>
 #include <gfx/graphics.hpp>
 
 #define FB_INFO_PHYS 0x0008F000
@@ -79,9 +80,13 @@ extern "C" void kernel_main() {
     kdm::kdm_init();
     kputs("CPOSKRNL: KDM initialized.");
 
+    // INPUT DRIVER REGISTRATION
     ps2_register();
     ps2_kb_register();
     ps2_mouse_register();
+
+    // STORAGE DRIVER REGISTRATION
+    ahci::register_driver();
 
     pci_init();
     kputs("CPOSKRNL: PCI initialized.");

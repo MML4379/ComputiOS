@@ -1,6 +1,9 @@
 #pragma once
 #include <kernel/libk/types.hpp>
 
+#define PAGE_CACHE_DISABLE (1ull << 4) // PWT bit
+#define PAGE_WRITE_THROUGH (1ull << 3) // PCD bit
+
 namespace vmm {
     // basic page flags 
     enum PageFlags : uint64 {
@@ -15,6 +18,8 @@ namespace vmm {
         PAGE_GLOBAL = 1ull << 8
     };
 
+    static const uint64 MMIO_PAGE_FLAGS = PAGE_RW | PAGE_CACHE_DISABLE | PAGE_WRITE_THROUGH;
+
     void init();
 
     // map a single 4KiB page: virt -> phys with given flags (must include PAGE_RW if writable)
@@ -27,4 +32,7 @@ namespace vmm {
     // Translate a virtual address to a physical address
     // returns 0 if unmapped.
     uint64 translate(uint64 virt);
+
+    uint64 map_mmio(uint64 phys, size_t size);
+    void unmap_mmio(uint64 virt, size_t size);
 } // namespace vmm

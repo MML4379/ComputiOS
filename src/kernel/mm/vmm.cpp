@@ -18,6 +18,9 @@ static inline uint64 pt_index(uint64 addr) { return (addr >> 12) & 0x1FF; }
 // update this helper accordingly.
 static inline uint64* phys_to_virt(uint64 phys) { return (uint64*)phys; }
 
+constexpr uint64 MMIO_BASE = 0xFFFF'8000'0000'0000;
+constexpr uint64 MMIO_SIZE = 0x0000'1000'0000'0000; // 256GB
+
 static inline uint64 get_cr3() {
     uint64 cr3;
     __asm__ __volatile__("mov %%cr3, %0" : "=r"(cr3));
@@ -32,6 +35,19 @@ static uint64* get_pml4() {
     uint64 cr3 = get_cr3();
     uint64 phys = cr3 & ~0xFFFULL;    // clear lower 12 bits
     return phys_to_virt(phys);
+}
+
+static inline uint64 align_up(uint64 addr, uint64 align) { return (addr + align - 1) & ~(align - 1); }
+
+static uint64 mmio_next = MMIO_BASE;
+
+extern "C" uint64 vmm_reserve_mmio_virtual_range(uint64 size) {
+    size = align_up(size, PAGE_SIZE);
+
+    uint64 addr = mmio_next;
+    mmio_next += size;
+
+    return addr;
 }
 
 namespace vmm {
@@ -149,5 +165,53 @@ namespace vmm {
         uint64 base = pt[l1] & ~0xFFFULL;
         uint64 offset = virt & 0xFFF;
         return base + offset;
+    }
+
+    uint64 map_mmio(uint64 phys, size_t size) {
+        if ((phys & 0xFFF) != 0 || (size % PAGE_SIZE) != 0 || size == 0) {
+            kprintf("CPOS_VMM: map_mmio requires page-aligned phys and page-multiple size!\n");
+            return 0;
+        }
+
+        // Reserve a contiguous virtual address range for the MMIO region.
+        uint64 virt_start = vmm_reserve_mmio_virtual_range(size);
+        if (virt_start == 0) {
+            kprintf("CPOS_VMM: map_mmio failed to reserve virtual address space.\n");
+            return 0;
+        }
+
+        uint64 virt_current = virt_start;
+        uint64 phys_current = phys;
+        bool success = true;
+
+        // Loop through and map each page individually.
+        for (size_t i = 0; i < size / PAGE_SIZE; ++i) {
+            if (!map_page(virt_current, phys_current, MMIO_PAGE_FLAGS)) {
+                success = false;
+                kprintf("CPOS_VMM: map_mmio failed to map page at virt=%x, phys=%x\n", 
+                        virt_current, phys_current);
+                break;
+            }
+            virt_current += PAGE_SIZE;
+            phys_current += PAGE_SIZE;
+        }
+
+        if (!success) return 0;
+
+        // Return the start of the mapped virtual address range.
+        return virt_start;
+    }
+
+    void unmap_mmio(uint64 virt, size_t size) {
+        if ((virt & 0xFFF) != 0 || (size % PAGE_SIZE) != 0 || size == 0) {
+             kprintf("CPOS_VMM: unmap_mmio requires page-aligned virt and page-multiple size!\n");
+             return;
+        }
+
+        for (size_t i = 0; i < size / PAGE_SIZE; ++i) {
+            unmap_page(virt + i * PAGE_SIZE);
+        }
+
+        return (void)0;
     }
 } // namespace vmm

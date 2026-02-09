@@ -7,6 +7,7 @@ A modern 64-bit operating system built from scratch for x86-64 hardware.
 ComputiOS aims to be a fully functional operating system capable of running on real, modern hardware with features you'd expect from contemporary OSes - including web browsing, multimedia support, and a polished graphical interface.
 
 This is a complete rewrite of the original project, designed with cleaner architecture and UEFI support from the ground up.
+(okay maybe not UEFI but the architecture will definitely be different - I won't be doing a *nix philosophy anymore)
 
 ## Current Status
 
@@ -17,6 +18,7 @@ ComputiOS is currently in the planning and initial implementation phase. Check b
 ### Completed
 - Architecture planning and design documentation
 - Repository structure
+- Legacy bootloader
 
 ### In Progress
 - UEFI bootloader
@@ -36,7 +38,7 @@ ComputiOS is currently in the planning and initial implementation phase. Check b
 
 ## Design Principles
 
-- **Modern First**: Targeting current hardware with UEFI, no legacy BIOS cruft
+- **Modern First with Compatibility**: Targeting current hardware with UEFI and Legacy BIOS
 - **Clean Architecture**: Well-defined subsystem boundaries and interfaces
 - **Real Hardware Ready**: Built to run on physical machines, not just emulators
 - **Documented**: Every major component has design documentation

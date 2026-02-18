@@ -1,0 +1,31 @@
+# Build
+build/
+bin/
+obj/
+out/
+dist/
+
+# Binaries
+*.bin
+*.iso
+*.img
+*.elf
+*.o
+*.a
+*.so
+*.d
+*.sys
+
+# OS/Editor Stuff
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Logs/temp files
+*.log
+*.tmp
+*.temp

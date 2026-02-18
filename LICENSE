@@ -1,0 +1,158 @@
+# ComputiOS License
+
+Copyright (c) 2026 Michael Peace II and ComputiOS Contributors
+
+## Terms and Conditions
+
+### 1. Definitions
+
+- "Core OS" refers to the kernel, bootloader, system drivers, and core system components of ComputiOS.
+- "System Libraries" refers to APIs, headers, libraries, and SDKs provided for application development.
+- "Software" refers to ComputiOS as a whole, including both Core OS and System Libraries.
+- "Author" refers to Michael Peace II and authorized ComputiOS team members.
+- "You" refers to any individual or entity accessing this Software.
+- "Application" refers to software programs created by third parties that run on ComputiOS.
+
+### 2. Core OS License
+
+The following terms apply to the Core OS (kernel, bootloader, drivers, and core system components):
+
+#### 2.1 Personal Use
+You are permitted to:
+- Download, compile, and run the Core OS for personal, non-commercial purposes
+- Use the Core OS on your personal devices for everyday use
+- Install and run Applications on the Core OS
+
+#### 2.2 Educational Use
+You are permitted to:
+- Read and study the Core OS source code for educational purposes
+- Reference the code in academic work with proper attribution
+- Use the code as a learning resource for understanding operating system development
+
+#### 2.3 Restrictions on Core OS
+You may NOT:
+- Modify, alter, or create derivative works based on the Core OS
+- Fork the Core OS repository for development purposes
+- Submit pull requests or contributions unless you are an authorized ComputiOS team member
+- Redistribute the Core OS, in whole or in part, in modified form
+- Use the Core OS for commercial purposes without explicit written consent from the Author
+- Pre-install the Core OS on hardware for sale (OEM use) without explicit written consent from the Author
+
+### 3. System Libraries and SDK License
+
+The following more permissive terms apply to System Libraries, APIs, headers, and SDKs located in the `/libcpos`, `/sdk`, and `/include` directories:
+
+#### 3.1 Application Development Rights
+You are permitted to:
+- Use System Libraries and APIs to develop Applications for ComputiOS
+- Link your Applications against System Libraries
+- Include necessary headers and interface code in your Applications
+- Distribute your Applications (free or commercial) that use System Libraries
+- Modify example code and SDK samples for your own Applications
+
+#### 3.2 Distribution Rights for System Libraries
+You are permitted to:
+- Redistribute unmodified System Libraries alongside your Applications if required for functionality
+- Include System Libraries in Application installers or packages
+- Dynamically link to System Libraries installed on end-user systems
+
+#### 3.3 Restrictions on System Libraries
+You may NOT:
+- Modify the System Libraries themselves (though you may use them as-is)
+- Remove copyright notices or attribution from System Libraries
+- Use System Libraries to create competing operating systems
+- Claim ownership of the System Libraries
+
+### 4. Third-Party Application Development
+
+#### 4.1 Your Applications
+Applications you develop for ComputiOS are YOUR property and may be:
+- Licensed however you choose (proprietary, open source, etc.)
+- Sold commercially without restriction
+- Distributed freely or for profit
+
+#### 4.2 No Restrictions on Application Content
+The Author places no restrictions on:
+- The type of Applications you create
+- How you monetize your Applications
+- Who you distribute your Applications to
+- What license you use for your Applications
+
+### 5. Redistribution of ComputiOS
+
+#### 5.1 Unmodified Distribution
+You may distribute unmodified copies of the complete ComputiOS system if:
+- You do not charge for the OS itself (charging for media/distribution costs is acceptable)
+- You include all copyright notices and this license
+- You clearly indicate it is the official ComputiOS
+- This is not part of an OEM hardware agreement (which requires Author consent)
+
+#### 5.2 Modified Distribution
+You may NOT distribute modified versions of the Core OS under any circumstances.
+
+### 6. Authorized Development
+
+Only the Author and explicitly authorized ComputiOS team members may:
+- Modify the Core OS source code
+- Create derivative works of the Core OS
+- Contribute to the official repository
+- Make development decisions regarding the Core OS
+
+### 7. Attribution
+
+#### 7.1 For Academic/Educational Use
+If you reference or discuss this Software in academic, educational, or public forums, you must:
+- Provide clear attribution to the ComputiOS project and its Author
+- Include a link to the official repository
+
+#### 7.2 For Applications
+Applications that use ComputiOS System Libraries should include a notice such as:
+"This application runs on ComputiOS" or similar acknowledgment (recommended but not required).
+
+### 8. No Warranty
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT, OR OTHERWISE, ARISING FROM, OUT OF, OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+### 9. Termination
+
+Any violation of these terms automatically terminates your rights to use, access, or reference the Software. The Author reserves the right to pursue legal action for violations of this license.
+
+### 10. Commercial OS Licensing and OEM Agreements
+
+For commercial use of the Core OS, OEM agreements, hardware pre-installation, or other special licensing arrangements, contact the Author by emailing [mailto:michael@mmltech.net](michael@mmltech.net).
+
+Application developers do NOT need special permission for commercial Applications.
+
+### 11. Amendments
+
+The Author reserves the right to modify these license terms at any time. Continued use of the Software constitutes acceptance of any modified terms.
+
+### 12. License Clarification by Component
+
+For clarity, here is how this license applies to different parts of the repository:
+
+**Restrictive (Core OS) License Applies To:**
+- `/kernel` - Kernel source code
+- `/bootloader` - Boot system
+- `/drivers` - System drivers
+- Core system utilities and components
+
+**Permissive (System Libraries) License Applies To:**
+- `/libcpos` - System libraries
+- `/sdk` - Software development kit
+- `/include` - API headers and interfaces
+- `/examples` - Example application code
+
+When in doubt, assume the more restrictive Core OS license applies unless the component is explicitly listed as using the permissive System Libraries license.
+
+---
+
+## Summary
+
+**For end users:** You can use ComputiOS freely for personal use and learn from its code.
+
+**For app developers:** You can freely create, distribute, and sell applications for ComputiOS using the provided libraries and APIs. Your apps are yours to license however you want.
+
+**For the Core OS:** Only the Author and team can modify the operating system itself. You cannot fork it, redistribute modified versions, or use it commercially without permission.
+
+**For businesses:** Contact the Author for OEM/commercial OS licensing. App development requires no special permission.
